@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 import requests
@@ -44,13 +44,13 @@ class Multipolygon(Feature):
     members: list[Member]
 
 class OverpassResponse(BaseModel):
-    version: float
+    version: Any
     generator: str
-    osm3s: dict[str, str]
+    osm3s: dict
     elements: list[Node | Way | Multipolygon]
 
 
-def query(query: str, endpoint: str | None = None) -> OverpassResponse:
+def fetch(query: str, endpoint: str | None = None) -> OverpassResponse:
     """Sends query to endpoint and returns deserialized response.
 
     This function sends the given OverpassQL query to the given endpoint (Main
@@ -66,6 +66,6 @@ def query(query: str, endpoint: str | None = None) -> OverpassResponse:
 
 
 __all__ = [
-    'Feature', 'Node', 'Way', 'MultipolygonRole', 'Member', 'Multipolygon',
-    'OverpassResponse', 'query'
+    'Feature', 'Member', 'Multipolygon', 'MultipolygonRole', 'Node',
+    'OverpassResponse', 'Way', 'fetch'
 ]

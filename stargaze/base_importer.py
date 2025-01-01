@@ -7,16 +7,16 @@ class BaseImporter(ABC):
 
     @abstractmethod
     def fetch(self, bounds: BoundingBox):
-        """Fetch data."""
+        """Fetches raw data extract."""
 
     @abstractmethod
     def transform(self, extract):
-        """Transforms raw data."""
+        """Transforms raw data extract."""
 
     @abstractmethod
     def load(self, data):
-        """Loads data into the database."""
+        """Loads transformed data into the database."""
 
-    def run(self, bounds: BoundingBox) -> None:
+    def run(self, bounds: BoundingBox, session) -> None:
         """Executes the pipeline."""
-        self.load(self.transform(self.fetch(bounds)))
+        self.load(self.transform(self.fetch(bounds)), session)
