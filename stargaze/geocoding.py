@@ -5,9 +5,12 @@ coordinates corresponding to the given description of whereabouts given as a
 string."""
 
 
+from argparse import ArgumentParser
 import re
 
-from stargaze.coordinates import Coordinates
+import requests
+
+from stargaze.commons import Coordinates
 
 
 _format_handler_registry = {}
@@ -51,9 +54,41 @@ def geocoding_format(pattern: str):
     return registering_decorator
 
 
+@geocoding_format(r'[([]?(-?\d+\.\d+),\s*(-?\d+\.\d+)[)\]]?')
+def decimal_degrees(match: re.Match) -> Coordinates:
+    lat, lon = match.groups()
+    return Coordinates(lat=float(lat), lon=float(lon))
+
+
 @geocoding_format(r'.*')
 def nominatim(match: re.Match) -> Coordinates:
-    raise NotImplementedError()
+    headers = {
+        'User-Agent': 'stargaze/1.0 (https://github.com/huleha/stargaze)',
+        'Referer': 'https://github.com/huleha/stargaze'
+    }
+    params = {'format': 'jsonv2', 'limit': 1}
+    endpoint = "https://nominatim.openstreetmap.org/search"
+    response = requests.get(
+        endpoint,
+        params={'q': match.string, **params},
+        headers=headers
+    )
+    response.raise_for_status()
+    feature = response.json()[0]
+    return Coordinates(lat=float(feature['lat']), lon=float(feature['lon']))
 
 
 __all__ = ['find_coordinates']
+
+
+def main():
+    parser = ArgumentParser(
+        description='finds coordinates corresponding to given whereabouts.'
+    )
+    parser.add_argument('whereabouts')
+    args = parser.parse_args()
+    print(find_coordinates(args.whereabouts))
+
+
+if __name__ == '__main__':
+    main()
