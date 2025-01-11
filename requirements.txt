@@ -1,9 +1,13 @@
 annotated-types==0.7.0
 certifi==2024.12.14
 charset-normalizer==3.4.1
+flexcache==0.3
+flexparser==0.4
 idna==3.10
+Pint==0.24.4
+platformdirs==4.3.6
 psycopg2-binary==2.9.10
-pydantic==2.10.4
+pydantic==2.10.5
 pydantic_core==2.27.2
 PyPika==0.48.9
 python-dotenv==1.0.1
