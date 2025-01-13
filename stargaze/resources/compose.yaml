@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgis/postgis:17-3.5 # postgres 17 + postgis 3.5.1
+    restart: always
+    container_name: stargaze_postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - ./data:/var/lib/postgresql/data # hook to the postgresql's storage
+      - ./schema.sql:/docker-entrypoint-initdb.d/init.sql # init script run at container creation
+    environment:
+      - POSTGRES_PASSWORD=stargaze
+      - POSTGRES_USER=stargaze
+      - POSTGRES_DB=stargaze

@@ -1,3 +1,9 @@
+begin transaction;
+
+-- required for the container, where stargaze is superuser,
+-- create extension if not exists postgis;
+-- create extension if not exists postgis_raster;
+
 create table roads (
     ref bigint primary key,
     shape geography(LineString, 4326) not null,
@@ -9,6 +15,10 @@ create table land (
     ref bigint primary key,
     shape geography(Polygon, 4326) not null,
     type text not null
+);
+
+create table relief (
+    rast raster not null
 );
 
 create or replace function utm_zone(point geometry)
@@ -34,3 +44,5 @@ $$ language plpgsql
 immutable
 returns null on null input
 parallel safe;
+
+commit;
