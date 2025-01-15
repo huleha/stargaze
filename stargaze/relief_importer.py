@@ -67,6 +67,7 @@ class ReliefImporter(BaseImporter):
                                 self._raster_table]
             sql_result = subprocess.run(raster2pgsql_cmd,
                                         stdout=subprocess.PIPE,
+                                        stderr=subprocess.DEVNULL,
                                         text=True)
         return sql_result
 
