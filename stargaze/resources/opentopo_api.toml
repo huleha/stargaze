@@ -1,0 +1,2 @@
+demtype = "SRTMGL1"
+outputFormat = "GTiff"
