@@ -4,20 +4,20 @@ begin transaction;
 -- create extension if not exists postgis;
 -- create extension if not exists postgis_raster;
 
-create table roads (
+create table if not exists roads (
     ref bigint primary key,
     shape geography(LineString, 4326) not null,
     type text not null,
     lit text
 );
 
-create table land (
+create table if not exists land (
     ref bigint primary key,
     shape geography(Polygon, 4326) not null,
     type text not null
 );
 
-create table relief (
+create table if not exists relief (
     rast raster not null
 );
 
