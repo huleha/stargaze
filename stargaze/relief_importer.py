@@ -11,6 +11,9 @@ from stargaze.commons import BoundingBox
 
 _resources = importlib.resources.files('stargaze.resources')
 
+with open(_resources / 'opentopo_api.toml', 'rb') as open_topo_file:
+    _base_params = tomllib.load(open_topo_file)
+
 
 def to_params(box: BoundingBox) -> dict:
     """Get the specific parameters required by the OpenTopo API"""
@@ -29,43 +32,38 @@ class ReliefImporter(BaseImporter):
 
     _raster_table = 'stargaze.relief'
 
-    with open(_resources / 'opentopo_api.toml', 'rb') as open_topo_file:
-        _base_params = tomllib.load(open_topo_file)
-
     def fetch(self, bounds):
         """
         Sends request to the endpoint and returns the response as bytestream.
 
-        This function sends a request parametrized with the BoundingBox coordinates
-        and name of the global dataset defined as SRTMGL1, with 30-meter precision,
-        to the OpenTopography endpoint for accessing global datasets.
-        The response body contains the raster file, in GeoTiff format by default.
+        This function sends a request parametrized with the BoundingBox
+        coordinates and name of the global dataset defined as SRTMGL1, with
+        30-meter precision, to the OpenTopography endpoint for accessing global
+        datasets. The response body contains the raster file, in GeoTiff format
+        by default.
         """
         params = to_params(bounds)
         params.update(self._base_params)
         response = requests.get(self._endpoint, params=params, stream=True)
         response.raise_for_status()
-        tmp = tempfile.NamedTemporaryFile(suffix='.tif')
-        tmp.write(response.content)
-        tmp.flush()
-        return tmp
-        # print(f"Downloaded file size: {len(response.content)} bytes")
-        # return response.content
+        return response.content
 
-    def transform(self, tmp_raster):
+    def transform(self, raster_binary):
         """
-        Transforms the raster image into sql statements
+        Transforms the binary image into sql statements
 
-        This function takes the GTiff image temporary file and creates an SQL file
-        with insertion statement, returning it in the standard output of the
-        completed process.
+        This function takes the GTiff image binary, puts into a temporary file
+        and creates an SQL file with insertion statement, returning it in the
+        standard output of the completed process.
         """
-        print("Temporary file's name is ", tmp_raster.name)
-        raster2pgsql_cmd = ["raster2pgsql", "-I", "-a", tmp_raster.name,
-                            self._raster_table]
-        sql_result = subprocess.run(raster2pgsql_cmd, stdout=subprocess.PIPE,
-                                    text=True)
-        tmp_raster.close()
+        with tempfile.NamedTemporaryFile(suffix='.tif') as tmp:
+            tmp.write(raster_binary)
+            tmp.flush()
+            raster2pgsql_cmd = ["raster2pgsql", "-I", "-a", tmp.name,
+                                self._raster_table]
+            sql_result = subprocess.run(raster2pgsql_cmd,
+                                        stdout=subprocess.PIPE,
+                                        text=True)
         return sql_result
 
     def load(self, sql_result, session):
