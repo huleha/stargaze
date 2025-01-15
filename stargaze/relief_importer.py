@@ -1,10 +1,12 @@
 import importlib
+import os
 import psycopg2
-import psycopg2.extras
 import requests
 import subprocess
 import tempfile
 import tomllib
+
+from dotenv import load_dotenv
 
 from stargaze.base_importer import BaseImporter
 from stargaze.commons import BoundingBox
@@ -14,6 +16,8 @@ _resources = importlib.resources.files('stargaze.resources')
 with open(_resources / 'opentopo_api.toml', 'rb') as open_topo_file:
     _base_params = tomllib.load(open_topo_file)
 
+load_dotenv()
+_base_params["API_Key"] = os.environ["OpenTopo_API_Key"]
 
 def to_params(box: BoundingBox) -> dict:
     """Get the specific parameters required by the OpenTopo API"""
@@ -43,7 +47,7 @@ class ReliefImporter(BaseImporter):
         by default.
         """
         params = to_params(bounds)
-        params.update(self._base_params)
+        params.update(_base_params)
         response = requests.get(self._endpoint, params=params, stream=True)
         response.raise_for_status()
         return response.content

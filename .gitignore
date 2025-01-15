@@ -3,3 +3,4 @@ __pycache__/
 .idea/
 stargaze/resources/data/
 stargaze/resources/opentopo_api.toml
+stargaze/.env
