@@ -28,5 +28,8 @@ class Coordinates:
     lat: float
     lon: float
 
+    def __str__(self):
+        return f'({self.lat}, {self.lon})'
+
 
 __all__ = ['BoundingBox', 'Coordinates']
