@@ -1,6 +1,6 @@
 begin transaction;
 
--- required for the container, where stargaze is superuser,
+-- required for the container, where stargaze is superuser
 -- create extension if not exists postgis;
 -- create extension if not exists postgis_raster;
 
@@ -16,8 +16,15 @@ create table if not exists land_tiles (
     snapshot timestamptz
 );
 
+-- table for inserting and temporarily storing rasters
 create table if not exists relief (
     rast raster not null
+);
+
+create table if not exists relief_tiles (
+    geohash character(5) primary key,
+    bbox box2d not null,
+    tile raster not null
 );
 
 create table if not exists road_tiles (
@@ -32,6 +39,39 @@ create table if not exists roads (
     type text not null,
     lit text
 );
+
+create or replace function clip_raster()
+returns trigger as $$
+begin
+    with params as (
+        select
+            st_envelope(relief.rast) as envelope
+        from
+            relief
+    ),
+    grid as (
+        select
+            st_geohash(tile,5) as geohash,
+            box2d(st_envelope(tile)) as bbox,
+            grid.tile as tile
+        from
+            params,
+            st_squaregrid(180/(2^12), params.envelope) as grid(tile)
+    )
+    insert into relief_tiles(geohash, bbox, tile)
+    select
+        grid.geohash,
+        grid.bbox,
+        st_clip(relief.rast, grid.tile)
+    from
+        relief,
+        grid;
+
+    delete from relief;
+
+    return null;
+end;
+$$ language plpgsql;
 
 create or replace function utm_zone(point geometry)
 returns integer as $$
@@ -56,5 +96,10 @@ $$ language plpgsql
 immutable
 returns null on null input
 parallel safe;
+
+create or replace trigger raster_clipping_trigger
+after insert on relief
+for each row
+execute function clip_raster();
 
 commit;
