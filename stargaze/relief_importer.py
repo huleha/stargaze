@@ -34,7 +34,8 @@ class ReliefImporter(BaseImporter):
 
     _endpoint = 'https://portal.opentopography.org/API/globaldem'
 
-    _raster_table = 'stargaze.relief'
+    _table  = 'stargaze.relief'
+    _column = 'rast'
 
     def fetch(self, bounds):
         """
@@ -63,8 +64,8 @@ class ReliefImporter(BaseImporter):
         with tempfile.NamedTemporaryFile(suffix='.tif') as tmp:
             tmp.write(raster_binary)
             tmp.flush()
-            raster2pgsql_cmd = ["raster2pgsql", "-I", "-a", tmp.name,
-                                self._raster_table]
+            raster2pgsql_cmd = ["raster2pgsql", "-f", self._column, "-a", tmp.name,
+                                self._table]
             sql_result = subprocess.run(raster2pgsql_cmd,
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.DEVNULL,
@@ -78,7 +79,7 @@ class ReliefImporter(BaseImporter):
 
 def main():
     relief_importer = ReliefImporter()
-    bounds = BoundingBox(minlat=50.0, minlon=14.35, maxlat=50.1, maxlon=14.6)
+    bounds = BoundingBox(minlat=49.0, minlon=13.35, maxlat=50.1, maxlon=14.6)
     with open(_resources / 'credentials.toml', 'rb') as credentials_file:
         credentials = tomllib.load(credentials_file)
     with psycopg2.connect(**credentials) as session:
