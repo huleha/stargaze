@@ -50,6 +50,12 @@
 
     <script>
         var map = L.map('map').setView([50.0647, 19.9450], 13);
+        var myIcon = L.icon({
+            iconUrl: '/static/stargaze_pin.png',
+            iconSize: [40, 40],
+            iconAnchor: [20, 40],
+            popupAnchor: [0, -40],
+        });
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -57,7 +63,7 @@
 
         {% if coordinates %}
             var coordinates = {{ coordinates | tojson }};
-            var marker = L.marker([coordinates.lat, coordinates.lon]).addTo(map);
+            var marker = L.marker([coordinates.lat, coordinates.lon], {icon: myIcon}).addTo(map);
             map.setView([coordinates.lat, coordinates.lon], 10);
         {% endif %}
 
