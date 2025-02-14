@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <title>Stargaze</title>
      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -34,13 +35,15 @@
       </div>
 
     </nav>
-    <h1 align="center" style="color: #473685; border: 2px; padding: 10px;" >Welcome to stargaze!</h1>
+    <h1 align="center" style="color: #473685; border: 2px; padding: 10px;">Welcome to stargaze!</h1>
 <!--    <img align="right" src="/static/stargaze.jpg" width="100" height="100">-->
     <h2 align="center" style="color: #473685;">Find the best stargazing spot</h2>
     <form method="POST" style="padding: 20px;">
-        <label for="whereabouts">Whereabouts (name or coordinates): </label><br>
-        <input type="text" id="whereabouts" name="whereabouts"><br>
-        <input type="submit" value="Search">
+        <div class="mb-3">
+          <label for="formGroupExampleInput" class="form-label">Whereabouts (name or coordinates):</label>
+          <input type="text" class="form-control" id="formGroupExampleInput" name="whereabouts" value="{{ whereabouts }}">
+        </div>
+        <button type="submit" class="btn btn-primary" style="background-color: #473685; border-color: #473685">Search</button>
     </form>
 
     <div id="map"></div>

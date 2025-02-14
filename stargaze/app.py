@@ -7,8 +7,11 @@ app = Flask(__name__)
 @app.route('/', methods=('GET', 'POST'))
 def index():
     if request.method == 'POST':
-        whereabouts = request.form.get('whereabouts')
-        if whereabouts:
-            coordinates = find_coordinates(whereabouts)
-            return render_template('index.html', coordinates=coordinates)
+        try:
+            whereabouts = request.form.get('whereabouts')
+            if whereabouts:
+                coordinates = find_coordinates(whereabouts)
+                return render_template('index.html', coordinates=coordinates, whereabouts=whereabouts)
+        except IndexError:
+            return render_template('index.html', coordinates=None)
     return render_template('index.html', coordinates=None)
