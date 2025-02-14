@@ -59,7 +59,9 @@ def main():
     whereabouts = find_coordinates(args.near)
     radius = parse_length(args.within)
     direction = args.head and parse_direction(args.head)
-    print(whereabouts, radius, direction, sep='\n')
+    spots = stargaze(whereabouts, radius, direction)
+    for spot in spots:
+        print(spot)
 
 
 if __name__ == '__main__':
