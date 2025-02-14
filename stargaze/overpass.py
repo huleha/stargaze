@@ -46,7 +46,7 @@ class Multipolygon(Feature):
 class OverpassResponse(BaseModel):
     version: Any
     generator: str
-    osm3s: dict
+    osm3s: dict[str, Any]
     elements: list[Node | Way | Multipolygon]
 
 
