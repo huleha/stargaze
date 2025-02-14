@@ -8,6 +8,7 @@ app = Flask(__name__)
 def index():
     if request.method == 'POST':
         whereabouts = request.form.get('whereabouts')
-        coordinates = find_coordinates(whereabouts)
-        return render_template('index.html', coordinates=coordinates)
+        if whereabouts:
+            coordinates = find_coordinates(whereabouts)
+            return render_template('index.html', coordinates=coordinates)
     return render_template('index.html', coordinates=None)

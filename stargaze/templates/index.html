@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <title>Stargaze</title>
      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
@@ -10,14 +11,33 @@
      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
      crossorigin=""></script>
     <style>
-        #map { height: 500px; margin-top: 50px; }
+        #map { height: 500px;  margin: 20px; }
     </style>
 </head>
 <body>
-    <h1 align="center">Welcome to stargaze!</h1>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary" style="background-color: #473685;">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#" style="color: white;">Stargaze</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link active" href="#" style="color: white;">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" style="color: white;">About</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </nav>
+    <h1 align="center" style="color: #473685; border: 2px; padding: 10px;" >Welcome to stargaze!</h1>
 <!--    <img align="right" src="/static/stargaze.jpg" width="100" height="100">-->
-    <h2 align="center">Find the best stargazing spot</h2>
-    <form method="POST">
+    <h2 align="center" style="color: #473685;">Find the best stargazing spot</h2>
+    <form method="POST" style="padding: 20px;">
         <label for="whereabouts">Whereabouts (name or coordinates): </label><br>
         <input type="text" id="whereabouts" name="whereabouts"><br>
         <input type="submit" value="Search">
