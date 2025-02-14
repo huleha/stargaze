@@ -1,5 +1,5 @@
+![stargaze](/stargaze/static/stargaze.jpg)
 # stargaze
-
 Stargaze is an application which helps you find the best spot for astronomical observations in your area, taking numerous factors into account, such as:
 
 - Accessibility by road
