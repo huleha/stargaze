@@ -10,12 +10,6 @@ create table if not exists land (
     type text not null
 );
 
-create table if not exists land_tiles (
-    geohash character(5) primary key,
-    bbox box2d not null,
-    snapshot timestamptz
-);
-
 -- table for inserting and temporarily storing rasters
 create table if not exists relief (
     rast raster not null
@@ -27,17 +21,16 @@ create table if not exists relief_tiles (
     tile raster not null
 );
 
-create table if not exists road_tiles (
-    geohash character(5) primary key,
-    bbox box2d not null,
-    snapshot timestamptz
-);
-
 create table if not exists roads (
     ref bigint primary key,
     shape geography(LineString, 4326) not null,
     type text not null,
     lit text
+);
+
+create table if not exists tiles (
+    geohash character(5) primary key,
+    bbox box2d not null
 );
 
 create or replace function clip_raster()
