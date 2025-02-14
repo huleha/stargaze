@@ -21,6 +21,7 @@ class LandImporter(BaseImporter):
         [out:json][bbox:%s];
         (
             way[landuse=construction];
+            way[landuse=farmyard];
             way[landuse=forest];
             way[landuse=military];
             way[natural=water];
