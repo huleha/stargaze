@@ -11,6 +11,20 @@ representation can be obtained by calling `str` with this object."""
 from stargaze.commons import Coordinates
 
 
+class Box:
+
+    def __init__(self, *, south: float, west: float, north: float, east: float):
+        if east < west or north < south:
+            raise ValueError()
+        self.south = south
+        self.west = west
+        self.north = north
+        self.east = east
+
+    def __str__(self):
+        return f'Box({self.west} {self.south}, {self.east} {self.north})'
+
+
 class Point:
 
     def __init__(self, point: Coordinates):
@@ -66,4 +80,4 @@ def _point_string(path: list[Coordinates]) -> str:
     return '(' + ', '.join(map(_point, path)) + ')'
 
 
-__all__ = ['Point', 'LineString', 'LinearRing', 'Polygon']
+__all__ = ['Box', 'Point', 'LineString', 'LinearRing', 'Polygon']
