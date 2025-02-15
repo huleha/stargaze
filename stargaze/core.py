@@ -17,46 +17,6 @@ _session_factory = SessionFactory.get_instance()
 
 _importers = [LandImporter(), ReliefImporter(), RoadImporter()]
 
-_missing_tiles_query = dedent("""\
-    with params as (select
-        ST_SetSRID(cast(%(origin)s as geometry), 4326) as origin,
-        %(radius)s as radius
-    ),
-    search_area as (
-        select ST_Transform(
-            ST_Buffer(
-                ST_Transform(params.origin, utm_zone(params.origin)),
-                params.radius
-            ),
-            4326
-        ) as shape
-        from params
-    ),
-    searched_tiles as (
-        select
-            grid.tile as tile,
-            ST_GeoHash(grid.tile, 5) as geohash
-        from
-            search_area,
-            ST_SquareGrid(180/(2^12), search_area.shape) as grid(tile)
-        where
-            ST_Intersects(grid.tile, search_area.shape)
-    )
-    select
-        ST_YMin(searched_tiles.tile) as south,
-        ST_XMin(searched_tiles.tile) as west,
-        ST_YMax(searched_tiles.tile) as north,
-        ST_XMax(searched_tiles.tile) as east
-    from
-        searched_tiles
-        left join land_tiles on searched_tiles.geohash = land_tiles.geohash
-        left join road_tiles on searched_tiles.geohash = road_tiles.geohash
-    where (
-        land_tiles.geohash is null
-        or road_tiles.geohash is null
-    );""")
-
-
 def identify_missing_tiles(origin: Coordinates, radius: float) -> list[BoundingBox]:
     """Returns a list of missing tiles for a given search area.
 
