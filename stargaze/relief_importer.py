@@ -12,12 +12,16 @@ from stargaze.base_importer import BaseImporter
 from stargaze.commons import BoundingBox
 
 _resources = importlib.resources.files('stargaze.resources')
+_scripts = importlib.resources.files('stargaze.resources.scripts')
 
 with open(_resources / 'opentopo_api.toml', 'rb') as open_topo_file:
     _base_params = tomllib.load(open_topo_file)
 
 load_dotenv()
 _base_params["API_Key"] = os.environ["OpenTopo_API_Key"]
+
+with open(_scripts / 'clip_raster.sql', 'r') as file:
+    _clip_raster = file.read()
 
 def to_params(box: BoundingBox) -> dict:
     """Get the specific parameters required by the OpenTopo API"""
@@ -75,6 +79,7 @@ class ReliefImporter(BaseImporter):
     def load(self, sql_result, session):
         with session.cursor() as cursor:
             cursor.execute(sql_result.stdout)
+            cursor.execute(_clip_raster)
 
 
 def main():
