@@ -1,6 +1,6 @@
 with params as (select
-    ST_GeomFromText('Point(26.945 53.863)', 4326) as origin,
-    15000 as radius
+    ST_GeomFromText(%(origin)s, 4326) as origin,
+    %(radius)s as radius
 ),
 search_area as (
     select ST_Buffer(origin::geography, radius)::geometry as shape
