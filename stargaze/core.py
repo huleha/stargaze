@@ -3,8 +3,7 @@
 from functools import partial
 from textwrap import dedent
 
-from wkt import Box
-
+import importlib
 import psycopg2
 
 from stargaze import wkt
@@ -18,7 +17,9 @@ _session_factory = SessionFactory.get_instance()
 
 _importers = [LandImporter(), ReliefImporter(), RoadImporter()]
 
-with open('resources/scripts/missing_tiles.sql', 'r') as file:
+_scripts = importlib.resources.files('stargaze.resources.scripts')
+
+with open(_scripts / 'missing_tiles.sql', 'rb') as file:
     _missing_tiles_query = file.read();
 
 
@@ -47,7 +48,15 @@ def import_tiles(missing_tiles) -> None:
         print('nothing to be imported')
         return
 
-    _, south, west, north, east = missing_tiles
+    south = []
+    west = []
+    north = []
+    east = []
+    for tile in missing_tiles:
+        south.append(tile[1])
+        west.append(tile[2])
+        north.append(tile[3])
+        east.append(tile[4])
     bounds = BoundingBox(
         minlat=min(south),
         minlon=min(west),
@@ -64,9 +73,9 @@ def import_tiles(missing_tiles) -> None:
 
 def confirm_tile_import(tiles) -> None:
     """Add the tiles to the table of present tiles"""
-    _insert_tiles = 'insert into tiles (geohash, bbox) values(%s, %s)'
+    _insert_tiles = 'insert into tiles (geohash, bbox) values(%s, %s::box2d)'
     new_rows = [
-        (row[0], Box(
+        (row[0], wkt.Box(
             south=row[1],
             west=row[2],
             north=row[3],
@@ -93,3 +102,9 @@ def stargaze(origin: Coordinates, radius: float, direction: float) -> list[
 
 
 __all__ = ['stargaze']
+
+def main():
+    stargaze(origin=Coordinates(lat=20, lon=30), radius=10000, direction=0)
+
+if __name__ == '__main__':
+    main()

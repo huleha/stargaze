@@ -15,9 +15,11 @@ insert into relief_tiles(geohash, bbox, tile)
 select
     grid.geohash,
     grid.bbox,
-    st_clip(relief.rast, grid.tile)
+    st_clip(relief.rast, grid.tile) as tile
 from
     relief,
-    grid;
+    grid
+on conflict (geohash) do update
+set tile = excluded.tile;
 
 delete from relief;
