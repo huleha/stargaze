@@ -38,6 +38,10 @@ class Member(BaseModel):
     role: MultipolygonRole
     geometry: list[Coordinates]
 
+    def is_closed(self) -> bool:
+        """Returns whether this way is closed."""
+        return self.geometry[0] == self.geometry[-1]
+
 class Multipolygon(Feature):
     type: Literal['relation']
     bounds: BoundingBox
