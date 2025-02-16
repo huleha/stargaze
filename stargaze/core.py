@@ -75,12 +75,12 @@ def confirm_tile_import(tiles) -> None:
     """Add the tiles to the table of present tiles"""
     _insert_tiles = 'insert into tiles (geohash, bbox) values(%s, %s::box2d)'
     new_rows = [
-        (row[0], wkt.Box(
+        (row[0], str(wkt.Box(
             south=row[1],
             west=row[2],
             north=row[3],
             east=row[4]
-        )) for row in tiles]
+        ))) for row in tiles]
     with _session_factory.session_scope() as session:
         with session.cursor() as cursor:
             cursor.executemany(
