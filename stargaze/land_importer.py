@@ -53,22 +53,26 @@ class LandImporter(BaseImporter):
 
     def transform(self, extract):
         data = []
+        refs = set()
         for feature in extract.elements:
-            if feature.type == 'way':
+            if (
+                feature.type == 'way'
+                and feature.is_closed()
+                and feature.id not in refs
+            ):
                 data.append({
                     'ref': feature.id,
                     'shape': str(wkt.Polygon(feature.geometry)),
                     'type': self._classify(feature)
                 })
+                refs.add(feature.id)
             elif feature.type == 'relation':
-                print('relation', feature.id)
                 for member in feature.members:
-                    print('member', member.ref, member.role, member.is_closed())
                     if (
                         member.role == overpass.MultipolygonRole.OUTER
                         and member.is_closed()
+                        and member.ref not in refs
                     ):
-                        print('appending')
                         data.append({
                             'ref': member.ref,
                             'shape': str(wkt.Polygon(member.geometry)),
@@ -76,6 +80,7 @@ class LandImporter(BaseImporter):
                             #                      ^^^^^^^
                             # yes, feature, not member, members do not have tags
                         })
+                        refs.add(member.ref)
         return data
 
     def load(self, data, session):

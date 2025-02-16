@@ -36,22 +36,30 @@ class ResidentialAreaImporter(BaseImporter):
 
     def transform(self, extract):
         data = []
+        refs = set()
         for feature in extract.elements:
-            if feature.type == 'way' and feature.is_closed():
+            if (
+                feature.type == 'way'
+                and feature.is_closed()
+                and feature.id not in refs
+            ):
                 data.append({
                     'ref': feature.id,
                     'shape': str(wkt.Polygon(feature.geometry))
                 })
+                refs.add(feature.id)
             elif feature.type == 'relation':
                 for member in feature.members:
                     if (
                         member.role == overpass.MultipolygonRole.OUTER
                         and member.is_closed()
+                        and member.ref not in refs
                     ):
                         data.append({
                             'ref': member.ref,
                             'shape': str(wkt.Polygon(member.geometry))
                         })
+                        refs.add(feature.id)
         return data
 
     def load(self, data, session):
