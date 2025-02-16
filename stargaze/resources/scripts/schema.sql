@@ -23,7 +23,9 @@ create table if not exists relief_tiles (
 
 create table if not exists residential_area (
     ref bigint primary key,
-    shape geography(Polygon, 4326)
+    shape geography(Polygon, 4326),
+    area float generated always as (ST_Area(shape)) stored,
+    centre geography(Point, 4326) generated always as (ST_Centroid(shape)) stored
 );
 
 create table if not exists roads (

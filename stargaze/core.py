@@ -22,7 +22,7 @@ _importers = [
 
 _scripts = importlib.resources.files('stargaze.resources.scripts')
 
-with open(_scripts / 'missing_tiles.sql', 'rb') as file:
+with open(_scripts / 'missing_tiles.sql', 'r') as file:
     _missing_tiles_query = file.read();
 
 
@@ -93,12 +93,18 @@ def stargaze(origin: Coordinates, radius: float, direction: float) -> list[
     Coordinates]:
     missing_tiles = identify_missing_tiles(origin, radius)
     print(f'there are {len(missing_tiles)} missing tiles')
-
     import_tiles(missing_tiles)
-
-    # TODO: execute the script and find the stargazing spot
-
-    return []
+    with open(_scripts/'stargaze.sql') as file:
+        stargaze_query = file.read()
+    with _session_factory.session_scope() as session:
+        with session.cursor() as cursor:
+            cursor.execute(
+                stargaze_query,
+                {'origin': str(wkt.Point(origin)), 'radius': radius}
+            )
+            spots = [Coordinates(lat=lat, lon=lon) for lon, lat in cursor]
+        session.commit()
+    return spots
 
 
 __all__ = ['stargaze']
