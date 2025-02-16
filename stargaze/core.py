@@ -89,18 +89,22 @@ def confirm_tile_import(tiles) -> None:
             )
 
 
-def stargaze(origin: Coordinates, radius: float, direction: float) -> list[
-    Coordinates]:
+def stargaze(origin: Coordinates,
+             radius: float,
+             azimuth: float) -> list[Coordinates]:
     missing_tiles = identify_missing_tiles(origin, radius)
     print(f'there are {len(missing_tiles)} missing tiles')
     import_tiles(missing_tiles)
-    with open(_scripts/'stargaze.sql') as file:
+    with open(_scripts / 'stargaze.sql') as file:
         stargaze_query = file.read()
     with _session_factory.session_scope() as session:
         with session.cursor() as cursor:
             cursor.execute(
                 stargaze_query,
-                {'origin': str(wkt.Point(origin)), 'radius': radius}
+                {'origin': str(wkt.Point(origin)),
+                 'radius': radius,
+                 'azimuth': azimuth,
+                 'altitude': 45}
             )
             spots = [Coordinates(lat=lat, lon=lon) for lon, lat in cursor]
         session.commit()
@@ -109,8 +113,10 @@ def stargaze(origin: Coordinates, radius: float, direction: float) -> list[
 
 __all__ = ['stargaze']
 
+
 def main():
     stargaze(origin=Coordinates(lat=20, lon=30), radius=10000, direction=0)
+
 
 if __name__ == '__main__':
     main()
