@@ -21,6 +21,11 @@ create table if not exists relief_tiles (
     tile raster not null
 );
 
+create table if not exists residential_area (
+    ref bigint primary key,
+    shape geography(Polygon, 4326)
+);
+
 create table if not exists roads (
     ref bigint primary key,
     shape geography(LineString, 4326) not null,
