@@ -1,5 +1,3 @@
-import importlib
-import tomllib
 from textwrap import dedent
 
 import psycopg2
@@ -9,9 +7,7 @@ from stargaze import overpass
 from stargaze import wkt
 from stargaze.base_importer import BaseImporter
 from stargaze.commons import BoundingBox
-
-
-_resources = importlib.resources.files('stargaze.resources')
+from stargaze.sessions import SessionFactory
 
 
 class LandImporter(BaseImporter):
@@ -76,12 +72,11 @@ class LandImporter(BaseImporter):
 
 
 def main():
-    land_importer = LandImporter()
+    importer = LandImporter()
     bounds = BoundingBox(minlat=49.98, minlon=18.48, maxlat=50.02, maxlon=18.52)
-    with open(_resources/'credentials.toml', 'rb') as credentials_file:
-        credentials = tomllib.load(credentials_file)
-    with psycopg2.connect(**credentials) as session:
-        land_importer.run(bounds, session)
+    with SessionFactory.get_instance() as factory:
+        with factory.session_scope() as session:
+            importer.run(bounds, session)
 
 
 if __name__ == '__main__':
