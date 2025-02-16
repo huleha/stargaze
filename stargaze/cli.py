@@ -5,7 +5,9 @@ from argparse import ArgumentParser
 
 import pint
 
+from stargaze.core import stargaze
 from stargaze.geocoding import find_coordinates
+from stargaze.sessions import SessionFactory
 
 
 ureg = pint.UnitRegistry()
@@ -60,6 +62,7 @@ def main():
     radius = parse_length(args.within)
     direction = args.head and parse_direction(args.head)
     spots = stargaze(whereabouts, radius, direction)
+    SessionFactory.get_instance().close()
     for spot in spots:
         print(spot)
 

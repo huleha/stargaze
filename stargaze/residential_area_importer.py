@@ -10,36 +10,25 @@ from stargaze.commons import BoundingBox
 from stargaze.sessions import SessionFactory
 
 
-class LandImporter(BaseImporter):
+class ResidentialAreaImporter(BaseImporter):
     """Importer of land classifying features from OverpassAPI."""
 
     _overpass_query_template = dedent("""\
         [out:json][bbox:%s];
         (
-            way[landuse=construction];
-            way[landuse=farmyard];
-            way[landuse=forest];
-            way[landuse=military];
-            way[natural=water];
-            way[natural=wood];
+            way[landuse=residential];
+            rel[landuse=residential][type=multipolygon];
         );
         out geom;""")
 
     _insert_stmt = dedent("""\
-        insert into land (ref, shape, type)
+        insert into residential_area (ref, shape)
         values %s
         on conflict (ref) do update set
-            shape = excluded.shape,
-            type = excluded.type;""")
+            shape = excluded.shape;""")
 
     def __init__(self, endpoint: str | None = None):
         self._endpoint = endpoint
-
-    @staticmethod
-    def _classify(feature: overpass.Feature) -> str:
-        """Classifies the feature based on its tags and returns its type."""
-        # it's more of a sketch
-        return feature.tags.get('landuse') or feature.tags.get('natural')
 
     def fetch(self, bounds: BoundingBox):
         overpass_query = self._overpass_query_template % str(bounds)
@@ -48,17 +37,21 @@ class LandImporter(BaseImporter):
     def transform(self, extract):
         data = []
         for feature in extract.elements:
-            if feature.type == 'way':
+            if feature.type == 'way' and feature.is_closed():
                 data.append({
                     'ref': feature.id,
-                    'shape': str(wkt.Polygon(feature.geometry)),
-                    'type': self._classify(feature)
+                    'shape': str(wkt.Polygon(feature.geometry))
                 })
             elif feature.type == 'relation':
-                raise NotImplementedError(
-                    'areas represented as multipolygon relations are not'\
-                    'supported yet'
-                )
+                for member in feature.members:
+                    if (
+                        member.role == overpass.MultipolygonRole.OUTER
+                        and member.is_closed()
+                    ):
+                        data.append({
+                            'ref': member.ref,
+                            'shape': str(wkt.Polygon(member.geometry))
+                        })
         return data
 
     def load(self, data, session):
@@ -67,13 +60,13 @@ class LandImporter(BaseImporter):
                 cur=cursor,
                 sql=self._insert_stmt,
                 argslist=data,
-                template='(%(ref)s, %(shape)s, %(type)s)'
+                template='(%(ref)s, %(shape)s)'
             )
 
 
 def main():
-    importer = LandImporter()
-    bounds = BoundingBox(minlat=49.98, minlon=18.48, maxlat=50.02, maxlon=18.52)
+    importer = ResidentialAreaImporter()
+    bounds = BoundingBox(minlat=49.98, minlon=19.88, maxlat=50.02, maxlon=19.92)
     with SessionFactory.get_instance() as factory:
         with factory.session_scope() as session:
             importer.run(bounds, session)

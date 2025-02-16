@@ -1,15 +1,16 @@
 import importlib
 import os
-import psycopg2
-import requests
 import subprocess
 import tempfile
 import tomllib
 
 from dotenv import load_dotenv
+import psycopg2
+import requests
 
 from stargaze.base_importer import BaseImporter
 from stargaze.commons import BoundingBox
+
 
 _resources = importlib.resources.files('stargaze.resources')
 _scripts = importlib.resources.files('stargaze.resources.scripts')
@@ -83,12 +84,11 @@ class ReliefImporter(BaseImporter):
 
 
 def main():
-    relief_importer = ReliefImporter()
+    importer = ReliefImporter()
     bounds = BoundingBox(minlat=49.0, minlon=13.35, maxlat=50.1, maxlon=14.6)
-    with open(_resources / 'credentials.toml', 'rb') as credentials_file:
-        credentials = tomllib.load(credentials_file)
-    with psycopg2.connect(**credentials) as session:
-        relief_importer.run(bounds, session)
+    with SessionFactory.get_instance() as factory:
+        with factory.session_scope() as session:
+            importer.run(bounds, session)
 
 
 if __name__ == '__main__':

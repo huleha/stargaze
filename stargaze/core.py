@@ -10,12 +10,15 @@ from stargaze import wkt
 from stargaze.commons import BoundingBox, Coordinates
 from stargaze.land_importer import LandImporter
 from stargaze.relief_importer import ReliefImporter
+from stargaze.residential_area_importer import ResidentialAreaImporter
 from stargaze.road_importer import RoadImporter
 from stargaze.sessions import SessionFactory
 
 _session_factory = SessionFactory.get_instance()
 
-_importers = [LandImporter(), ReliefImporter(), RoadImporter()]
+_importers = [
+    LandImporter(), ReliefImporter(), ResidentialAreaImporter(), RoadImporter()
+]
 
 _scripts = importlib.resources.files('stargaze.resources.scripts')
 
@@ -75,12 +78,9 @@ def confirm_tile_import(tiles) -> None:
     """Add the tiles to the table of present tiles"""
     _insert_tiles = 'insert into tiles (geohash, bbox) values(%s, %s::box2d)'
     new_rows = [
-        (row[0], wkt.Box(
-            south=row[1],
-            west=row[2],
-            north=row[3],
-            east=row[4]
-        )) for row in tiles]
+        (geohash, str(wkt.Box(south=south, west=west, north=north, east=east)))
+        for geohash, south, west, north, east in tiles
+    ]
     with _session_factory.session_scope() as session:
         with session.cursor() as cursor:
             cursor.executemany(
