@@ -58,7 +58,7 @@ accessible_area as (
     from calm_roads_buffer, busy_roads_buffer, ineligible_area, search),
 hillshade as (
     select ST_HillShade(
-        ST_Union(tile), 1, '8BUI', %(azimuth)s, %(altitude)s) as hillshade
+        ST_Union(tile), 1, '8BUI', %(azimuth)s::float, %(altitude)s::float) as hillshade
     from relief_tiles, search
     where ST_Intersects(
         ST_Envelope(tile),
