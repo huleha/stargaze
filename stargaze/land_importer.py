@@ -22,6 +22,12 @@ class LandImporter(BaseImporter):
             way[landuse=military];
             way[natural=water];
             way[natural=wood];
+            rel[landuse=construction][type=multipolygon];
+            rel[landuse=farmyard][type=multipolygon];
+            rel[landuse=forest][type=multipolygon];
+            rel[landuse=military][type=multipolygon];
+            rel[natural=water][type=multipolygon];
+            rel[natural=wood][type=multipolygon];
         );
         out geom;""")
 
@@ -55,10 +61,21 @@ class LandImporter(BaseImporter):
                     'type': self._classify(feature)
                 })
             elif feature.type == 'relation':
-                raise NotImplementedError(
-                    'areas represented as multipolygon relations are not'\
-                    'supported yet'
-                )
+                print('relation', feature.id)
+                for member in feature.members:
+                    print('member', member.ref, member.role, member.is_closed())
+                    if (
+                        member.role == overpass.MultipolygonRole.OUTER
+                        and member.is_closed()
+                    ):
+                        print('appending')
+                        data.append({
+                            'ref': member.ref,
+                            'shape': str(wkt.Polygon(member.geometry)),
+                            'type': self._classify(feature)
+                            #                      ^^^^^^^
+                            # yes, feature, not member, members do not have tags
+                        })
         return data
 
     def load(self, data, session):
