@@ -16,15 +16,12 @@ def index():
                 input_radius = request.form.get('radius')
                 input_direction = request.form.get('direction', '0.0')
                 direction = parse_direction(input_direction)
-                print("AAAAAAAAAAAAA", direction)
                 if input_radius:
-                    print("bbb", direction)
                     radius = parse_length(input_radius)
                     spots = stargaze(coordinates, radius, direction)
 
                     return render_template('index.html', whereabouts=input_whereabouts, radius=input_radius,
                                            spots=spots, direction=direction)
-                print("ccc", direction)
                 radius = 3000
                 spots = stargaze(coordinates, radius, direction)
                 return render_template('index.html', whereabouts=input_whereabouts, radius=radius,
