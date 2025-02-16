@@ -5,6 +5,7 @@ from argparse import ArgumentParser
 
 import pint
 
+from stargaze.core import stargaze
 from stargaze.geocoding import find_coordinates
 
 
