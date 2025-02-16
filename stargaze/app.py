@@ -15,3 +15,7 @@ def index():
         except IndexError:
             return render_template('index.html', coordinates=None)
     return render_template('index.html', coordinates=None)
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
