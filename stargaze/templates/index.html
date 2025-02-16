@@ -36,14 +36,15 @@
     <h1 align="center" style="color: #473685; border: 2px; padding: 10px;">Welcome to stargaze!</h1>
 <!--    <img align="right" src="/static/stargaze.jpg" width="100" height="100">-->
     <h2 align="center" style="color: #473685;">Find the best stargazing spot</h2>
+    <form method="POST" style="padding: 20px;">
     <div>
-        <form method="POST" style="padding: 20px;">
+
             <div class="mb-3">
                 <label for="whereabouts" class="form-label">Whereabouts (name or coordinates):</label>
                 <input type="text" class="form-control" id="whereabouts" name="whereabouts" value="{{ whereabouts }}">
             </div>
         <button type="submit" class="btn btn-primary" style="background-color: #473685; border-color: #473685">Search</button>
-        </form>
+
     </div>
 
     <div class="accordion" id="advancedSearch" style="padding: 20px;">
@@ -55,23 +56,23 @@
         </h2>
             <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
             <div class="accordion-body">
-                <form method="POST" style="padding: 20px;">
+
                 <div class="mb-3">
                     <label for="radius" class="form-label">Search radius:</label>
-                    <input type="text" class="form-control" id="radius" name="radius" placeholder="10km">
+                    <input type="text" class="form-control" id="radius" name="radius" placeholder="3km">
                 </div>
-                <label for="direction">Direction:</label>
+                <label for="direction">Azimuth (direction):</label>
                 <select class="form-select" id="direction" name="direction">
-                  <option selected>North</option>
-                  <option value="1">East</option>
-                  <option value="2">South</option>
-                  <option value="3">West</option>
+                  <option selected value="0.0">North</option>
+                  <option value="90.0">East</option>
+                  <option value="180.0">South</option>
+                  <option value="270.0">West</option>
                 </select>
-                </form>
             </div>
             </div>
         </div>
     </div>
+    </form>
 
     <div id="map"></div>
 
@@ -91,10 +92,13 @@
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
 
-        {% if coordinates %}
-            var coordinates = {{ coordinates | tojson }};
-            var marker = L.marker([coordinates.lat, coordinates.lon], {icon: myIcon}).addTo(map);
-            map.setView([coordinates.lat, coordinates.lon], 10);
+
+        {% if spots %}
+            var spots = {{ spots | tojson }};
+            spots.forEach(function(spot) {
+            L.marker([spot.lat, spot.lon], {icon: myIcon}).addTo(map);
+            });
+            map.setView([spots[0].lat, spots[0].lon], 10);
         {% endif %}
     </script>
 
