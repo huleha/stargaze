@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, g
 from stargaze.geocoding import find_coordinates
 from stargaze.cli import parse_length, parse_direction
 from stargaze.core import stargaze
@@ -38,3 +38,16 @@ def index():
 @app.route('/about')
 def about():
     return render_template('about.html')
+
+
+def get_db():
+    if 'db' not in g:
+        g.db = SessionFactory.get_session()
+    return g.db
+
+
+@app.teardown_appcontext
+def teardown_db(exception):
+    db = g.pop('db', None)
+    if db is not None:
+        SessionFactory.get_instance().close()
