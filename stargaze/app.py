@@ -22,12 +22,10 @@ def index():
                 if input_radius:
                     radius = parse_length(input_radius)
                     spots = stargaze(coordinates, radius, direction)
-                    # SessionFactory.get_instance().close()
                     return render_template('index.html', whereabouts=input_whereabouts, radius=input_radius,
                                            spots=spots, direction=direction, call_function=call_function)
                 radius = 3000
                 spots = stargaze(coordinates, radius, direction)
-                # SessionFactory.get_instance().close()
                 return render_template('index.html', whereabouts=input_whereabouts, radius=radius,
                                        spots=spots, direction=direction, call_function=call_function)
         except IndexError:
