@@ -43,6 +43,8 @@ create table if not exists tiles (
 create index if not exists land_index on land using gist(shape);
 create index if not exists residential_area_index on residential_area using gist(shape);
 create index if not exists roads_index on roads using gist(shape);
+create index if not exists tiles_index on tiles(geohash);
+create index if not exists relief_tiles_index on relief_tiles using gist(ST_SetSRID(bbox, 4326));
 
 create or replace function utm_zone(point geometry)
 returns integer as $$
