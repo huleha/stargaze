@@ -61,7 +61,7 @@ hillshade as (
         ST_Union(tile), 1, '8BUI', %(azimuth)s::float, %(altitude)s::float) as hillshade
     from relief_tiles, search
     where ST_Intersects(
-        ST_Envelope(tile),
+        ST_SetSRID(bbox,4326),
         search.area)),
 suitable_area as (
     select dump.geom as patch
