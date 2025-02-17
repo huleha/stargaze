@@ -40,6 +40,10 @@ create table if not exists tiles (
     bbox box2d not null
 );
 
+create index if not exists land_index on land using gist(shape);
+create index if not exists residential_area_index on residential_area using gist(shape);
+create index if not exists roads_index on roads using gist(shape);
+
 create or replace function utm_zone(point geometry)
 returns integer as $$
 declare
